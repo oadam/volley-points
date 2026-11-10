@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Où sont tes points à gagner ?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --ink:#10203F; --muted:#56637D; --line:#CBD5E6;
+  --blue:#1D3FA6; --blue-soft:#DDE5F7; --yellow:#F2B800; --on-yellow:#10203F;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0D1730; --surface:#16223F; --ink:#E9EEF8; --muted:#9BA8C2; --line:#2C3A5C;
+    --blue:#8FACFF; --blue-soft:#1F2E55; --yellow:#F5C91A; --on-yellow:#10203F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D1730; --surface:#16223F; --ink:#E9EEF8; --muted:#9BA8C2; --line:#2C3A5C;
+  --blue:#8FACFF; --blue-soft:#1F2E55; --yellow:#F5C91A; --on-yellow:#10203F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px 56px}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.02;margin:0}
+h1{font-size:clamp(2.6rem,11vw,4rem);letter-spacing:-.01em}
+h2{font-size:1.9rem;margin-top:44px}
+p{margin:.5em 0 0}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+
+header{padding:36px 0 0}
+header p{max-width:34em}
+.net{height:22px;margin:26px -18px 0;border-top:5px solid var(--ink);border-bottom:2px solid var(--ink);
+  background-image:linear-gradient(var(--ink) 0 0),linear-gradient(90deg,var(--ink) 1.5px,transparent 1.5px);
+  background-size:100% 1.5px,11px 100%;background-position:0 50%,0 0;background-repeat:no-repeat,repeat;opacity:.85}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font:500 1rem var(--body);color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--surface)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+
+.axis{padding:20px 0 18px;border-bottom:1.5px solid var(--line)}
+.axis-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.axis-head label{font:700 1.5rem/1.05 var(--display)}
+.axis-head output{font:700 2rem/1 var(--display);color:var(--blue);min-width:1.3em;text-align:right}
+.band{font-size:.97rem;min-height:4.3em}
+.band b{font-weight:600;color:var(--blue)}
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;margin:8px 0 0;background:transparent;cursor:pointer;--p:50%}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--blue) var(--p),var(--line) var(--p))}
+input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--blue) var(--p),var(--line) var(--p))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-11px;border-radius:50%;background:var(--yellow);border:4px solid var(--blue)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--yellow);border:4px solid var(--blue)}
+
+.cta{display:block;width:100%;margin-top:28px;padding:16px;font:700 1.5rem var(--display);background:var(--yellow);color:var(--on-yellow);border:0;border-radius:10px;cursor:pointer}
+
+.total{margin-top:14px;padding:16px 18px;background:var(--blue);color:var(--surface);border-radius:12px}
+.total strong{font:700 2.4rem/1 var(--display);display:block}
+.seg{display:inline-flex;margin-top:18px;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{font:500 .95rem var(--body);padding:9px 13px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.res{margin-top:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px}
+.res summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:baseline}
+.res summary::-webkit-details-marker{display:none}
+.rank{font:700 1.4rem var(--display);color:var(--muted)}
+.rname{font:700 1.4rem/1.05 var(--display)}
+.gain{font:700 1.4rem/1 var(--display);background:var(--yellow);color:var(--on-yellow);padding:4px 8px;border-radius:6px;white-space:nowrap}
+.gain.zero{background:var(--blue-soft);color:var(--muted)}
+.diff{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-top:6px;font-size:.9rem;color:var(--muted)}
+.dots{display:inline-flex;gap:3px}
+.dots i{width:16px;height:7px;border-radius:2px;background:var(--line)}
+.dots i.on{background:var(--blue)}
+.sortnote{margin-top:10px}
+.res-body{padding:0 16px 16px}
+.res-body h3{font-size:1.15rem;margin-top:14px}
+.res-body ul{margin:6px 0 0;padding-left:1.15em}
+.res-body li{margin-top:4px}
+.kpi{margin-top:12px;padding:11px 13px;background:var(--blue-soft);border-radius:8px}
+.kpi b{font-weight:600}
+
+.model{margin-top:44px;border-top:1.5px solid var(--line);padding-top:16px}
+.model summary{cursor:pointer;font:700 1.4rem var(--display)}
+.scroll{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;font-size:.88rem;min-width:520px;width:100%}
+th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600}
+.reset{margin-top:20px;background:none;border:0;padding:0;color:var(--muted);font:inherit;font-size:.9rem;text-decoration:underline;cursor:pointer}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Où sont tes points à gagner ?</h1>
+    <p>Évalue-toi sur chaque secteur du jeu. Le bilan classe tes axes selon ce qu’ils rapportent, en centièmes de point par set, et te donne quoi surveiller à tes prochains matchs.</p>
+    <div class="net" aria-hidden="true"></div>
+  </header>
+
+  <section>
+    <h2>Ton poste</h2>
+    <p class="muted small">Il change le nombre de ballons que tu joues dans chaque secteur.</p>
+    <div class="chips" id="pos"></div>
+  </section>
+
+  <section>
+    <h2>Évalue-toi</h2>
+    <p class="muted small">Règle chaque curseur sur la description qui te ressemble en match, pas à l’entraînement.</p>
+    <div id="axes"></div>
+    <button class="cta" id="go">Voir mon bilan</button>
+  </section>
+
+  <section id="bilan" hidden>
+    <h2>Ton bilan</h2>
+    <div class="total" id="total"></div>
+    <div class="seg" role="group" aria-label="Critère de tri">
+      <button data-sort="roi">Rendement</button>
+      <button data-sort="next">Prochain niveau</button>
+      <button data-sort="total">Potentiel</button>
+    </div>
+    <p class="muted small sortnote" id="sortnote"></p>
+    <div id="results"></div>
+  </section>
+
+  <details class="model">
+    <summary>Comment c’est calculé</summary>
+    <p>Pour chaque axe, le modèle multiplie le nombre d’actions que tu joues par set à ton poste par ce que vaut une action à ton niveau (chance de gagner l’échange, ou fautes données). Le gain affiché est l’écart entre ton niveau et le suivant. 1 cpt = un centième de point par set.</p>
+    <p>Le tri « Rendement » divise ce gain par un effort relatif, où 1 correspond à un niveau de service gagné en loisir. L’effort dépend de l’axe (la communication se corrige vite, la vitesse de bras lentement) et augmente avec ton niveau.</p>
+    <p class="muted">Ce sont des ordres de grandeur estimés pour du 6 contre 6 loisir à départemental, pas des statistiques mesurées. Ils servent à classer les axes entre eux.</p>
+    <div class="scroll"><table id="mtable"></table></div>
+  </details>
+
+  <button class="reset" id="reset">Remettre tous les curseurs à 5</button>
+</div>
+
+<script>
+const POS=[["poly","Polyvalent"],["r4","Réceptionneur-attaquant"],["cen","Central"],["poi","Pointu"],["pas","Passeur"],["lib","Libéro"]];
+const BANDS=["Découverte","Loisir","Loisir confirmé","Départemental","Régional et plus"];
+// n : actions par set selon le poste (ordre de POS). v : valeur d’une action aux niveaux 0 / 2,5 / 5 / 7,5 / 10.
+const AXES=[
+{id:"service",name:"Service",u:"services",u1:"service",n:[3.7,3.7,3.7,3.7,3.7,0],v:[.22,.34,.44,.50,.56],
+ kpi:"Services dans le terrain, sur 10",b:[
+ {d:"Tu rates à peu près un service sur deux, le lancer part dans tous les sens.",c:["Même lancer à chaque fois : devant l’épaule de frappe, sans rotation.","Main ferme au centre du ballon, geste court. Vise juste le milieu du terrain."],t:"7 sur 10 dedans"},
+ {d:"Ça passe la plupart du temps, mais en cloche et sans viser.",c:["Routine fixe avant chaque service : mêmes appuis, même respiration.","Trajectoire tendue : frappe derrière le ballon, pas dessous."],t:"8 sur 10 dedans, trajectoire tendue"},
+ {d:"Service régulier, tu choisis à peu près une moitié de terrain.",c:["Choisis ta cible avant le coup de sifflet : le réceptionneur le plus faible ou l’espace entre deux joueurs.","Flottant : frappe sèche sans accompagner, poignet bloqué."],t:"9 sur 10 dedans, 5 sur 10 sur la cible annoncée"},
+ {d:"Flottant ou smashé qui gêne, tu vises une zone précise.",c:["Alterne court et long sur le même réceptionneur.","Après un temps mort ou à 23 partout : même routine, zéro faute."],t:"1 faute au plus sur 10, 4 réceptions adverses hors des 3 m"},
+ {d:"Ton service est une arme : aces réguliers, peu de fautes.",c:["Sers sur le trajet du passeur ou sur l’attaquant principal pour l’enlever du jeu.","Adapte le risque au score : agressif quand tu mènes, zone sûre en fin de set serré."],t:"Plus d’aces que de fautes sur le match"}]},
+{id:"reception",name:"Réception de service",u:"réceptions",u1:"réception",n:[4.5,7,2,1.5,.5,8],v:[.25,.38,.50,.58,.64],
+ kpi:"Réceptions jouables par le passeur, sur 10",b:[
+ {d:"Le ballon repart souvent n’importe où, tu le frappes avec les bras au lieu de l’orienter.",c:["Bras bien joints et tendus, plateau formé après ton déplacement, pas pendant.","Déplace-toi pour avoir le ballon devant toi, entre les genoux et les hanches."],t:"5 sur 10 qui restent en jeu de ton côté"},
+ {d:"Tu remontes les services faciles, les services tendus ou flottants te mettent en échec.",c:["Arrêté et équilibré au contact : pas de réception en marchant.","Épaules vers le passeur, le plateau ne bouge pas : ce sont les jambes qui poussent."],t:"6 sur 10 jouables"},
+ {d:"Réception correcte sur service moyen, haute et vers le milieu du terrain.",c:["Lis le lancer et l’épaule du serveur, premier pas avant que le ballon passe le filet.","Vise haut à 1 ou 2 m du filet, pas collé."],t:"7 sur 10 jouables, 4 sur 10 dans les 3 m"},
+ {d:"Tu amènes régulièrement le ballon dans la zone du passeur, même sur flottant.",c:["Annonce « j’ai » tôt et règle les zones avec ton voisin avant chaque service.","Sur flottant : avance d’un pas, prends le ballon tôt, plateau incliné, sans geste."],t:"6 sur 10 dans les 3 m, 1 faute directe au plus"},
+ {d:"Tu tiens ta zone et celle du voisin, le passeur a toutes ses options.",c:["Module la hauteur selon le jeu voulu : plus tendue pour accélérer avec le central.","Prends plus de terrain pour protéger un réceptionneur en difficulté."],t:"7 sur 10 parfaites, aucun ace dans ta zone"}]},
+{id:"defense",name:"Défense sur attaque",u:"défenses",u1:"défense",n:[5,5,2.5,4,4,7],v:[.10,.20,.30,.38,.45],
+ kpi:"Attaques dans ta zone remontées jouables, sur 10",b:[
+ {d:"L’attaque te surprend debout, le ballon tombe ou part dans les tribunes.",c:["Jambes fléchies, poids sur l’avant des pieds, bras libres devant toi avant la frappe adverse.","Ne recule pas : laisse le ballon venir sur le plateau, sans coup de bras."],t:"3 sur 10 touchées et gardées en jeu"},
+ {d:"Tu touches les ballons qui t’arrivent dessus, souvent trop bas ou trop loin.",c:["Immobile au moment où l’attaquant frappe : tu bouges avant, pas pendant.","Amortis et vise haut au centre du terrain, pas le filet."],t:"4 sur 10 jouables"},
+ {d:"Tu défends les attaques moyennes et tu lis les ballons placés évidents.",c:["Regarde l’épaule et l’élan de l’attaquant, pas le ballon.","Sors de l’ombre du bloc : place-toi là où tu vois le ballon."],t:"5 sur 10 jouables"},
+ {d:"Tu anticipes la direction, tu plonges ou roules quand il faut.",c:["Ajuste ta position de départ selon l’attaquant : ligne, diagonale, feinte habituelle.","Sur ballon fort, cherche une défense haute dans les 3 m plutôt que parfaite."],t:"6 sur 10 jouables, dont 3 qui permettent d’attaquer"},
+ {d:"Tu fermes ta zone et tes défenses deviennent des contre-attaques.",c:["Règle le placement défensif des autres avant chaque point.","Choisis la zone que tu laisses : couvre le coup préféré de l’attaquant."],t:"7 sur 10 jouables"}]},
+{id:"passe",name:"Passe et deuxième touche",u:"passes",u1:"passe",n:[4,2.5,2,2,18,4],v:[.25,.36,.44,.50,.54],
+ kpi:"Passes que l’attaquant frappe en pleine extension, sur 10",b:[
+ {d:"Touche haute hésitante : ballon porté, doublé, ou tu préfères la manchette.",c:["Mains en coupe au-dessus du front avant que le ballon arrive.","Place-toi sous le ballon, pousse avec les jambes, finis bras tendus vers la cible."],t:"5 sur 10 sans faute de main"},
+ {d:"Passe propre quand le ballon arrive bien, peu précise dès que tu bouges.",c:["Pieds et épaules tournés vers ta cible avant le contact.","Passe haute à 1 m du filet : une cloche facile vaut mieux qu’une tendue ratée."],t:"6 sur 10 attaquables"},
+ {d:"Passe haute fiable vers l’avant, plus difficile en arrière ou en course.",c:["Arrive tôt sous le ballon : cours puis stoppe, ne passe pas en courant.","Annonce ta passe et le prénom de l’attaquant."],t:"7 sur 10 attaquables"},
+ {d:"Tu sers devant et derrière à hauteur constante, même sur réception moyenne.",c:["Même geste pour toutes les passes : rien ne doit annoncer la direction.","Regarde le bloc adverse avant le contact et sers l’attaquant en un contre un."],t:"8 sur 10 attaquables, 3 sur 10 face à un bloc seul"},
+ {d:"Tu varies tempos et directions, tu crées des situations sans bloc.",c:["Construis ta distribution sur le set : installe une habitude puis casse-la.","Sur réception parfaite, joue le central pour fixer le bloc."],t:"4 sur 10 face à un bloc seul ou absent"}]},
+{id:"elan",name:"Élan et timing d’attaque",u:"attaques",u1:"attaque",n:[6,9,5,9,1.5,0],v:[0,.10,.17,.21,.23],
+ kpi:"Attaques frappées bras tendu au-dessus de la bande, sur 10",b:[
+ {d:"Tu frappes à l’arrêt ou tu sautes sous le ballon : beaucoup de filets et de ballons manqués.",c:["Trois appuis gauche-droite-gauche si tu es droitier, les deux derniers rapides.","Pars quand le ballon est au sommet de la passe, pas avant."],t:"4 sur 10 qui passent le filet"},
+ {d:"Tu as un élan, mais tu arrives souvent trop tôt ou trop sous le ballon.",c:["Garde le ballon devant ton épaule de frappe : saute derrière lui, pas dessous.","Les deux bras montent ensemble à l’impulsion."],t:"6 sur 10 frappées bras tendu"},
+ {d:"Bon timing sur passe haute, tu frappes au-dessus de la bande la plupart du temps.",c:["Pars de l’extérieur du terrain pour t’ouvrir tout le camp adverse.","Dernier appui freiné : saute vers le haut, pas vers le filet."],t:"7 sur 10 au point le plus haut"},
+ {d:"Tu t’adaptes aux passes imparfaites et aux passes plus tendues.",c:["Ajuste la longueur du premier pas à la passe, garde les deux derniers identiques.","Passe loin du filet : frappe longue et liftée plutôt que de forcer."],t:"8 sur 10 au point le plus haut, même sur passe moyenne"},
+ {d:"Tu attaques tous les tempos, ballons rapides et attaque arrière compris.",c:["Sur ballon rapide, démarre avant la passe et fais confiance au passeur.","Varie ton angle de course pour masquer ta direction."],t:"Aucune attaque subie : tu choisis ta hauteur de frappe"}]},
+{id:"placee",name:"Attaque placée",u:"attaques",u1:"attaque",n:[6,9,5,9,1.5,0],v:[0,.06,.13,.19,.23],
+ kpi:"Attaques posées dans la zone visée, sur 10",b:[
+ {d:"Tu renvoies le ballon de l’autre côté sans regarder où.",c:["Avant la passe, repère un espace : fond de terrain ou derrière le bloc.","Pousse long plutôt que court : une attaque longue finit rarement dans le filet."],t:"5 sur 10 dans le terrain"},
+ {d:"Tu vises grossièrement, presque toujours au même endroit.",c:["Deux cibles simples : la grande diagonale et le fond de la zone 1.","Feinte courte juste derrière le bloc, du bout des doigts, main ferme."],t:"4 sur 10 dans la zone visée"},
+ {d:"Tu alternes diagonale et ligne, avec une feinte de temps en temps.",c:["Jette un œil au bloc et à la défense pendant que la passe monte.","Même élan pour la feinte et la frappe : change au dernier moment."],t:"5 sur 10 dans la zone visée"},
+ {d:"Tu vois le bloc et tu choisis : main extérieure, ligne, petit ballon.",c:["Bloc bien formé : joue le bloc-out sur la main extérieure.","Vise les zones de conflit : entre deux défenseurs, ou sur le passeur adverse."],t:"6 sur 10 dans la zone visée, 2 bloc-out par set"},
+ {d:"Tu lis la défense avant de frapper et tu la prends à contre-pied.",c:["Change de direction au poignet, sans bouger l’épaule.","Mémorise le placement défensif adverse et partage-le à tes coéquipiers."],t:"Moins de 1 attaque sur 10 défendue facilement"}]},
+{id:"bras",name:"Vitesse de bras",u:"attaques",u1:"attaque",n:[6,9,5,9,1.5,0],v:[0,.03,.07,.12,.17],
+ kpi:"Attaques non défendues, sur 10 frappées fort",b:[
+ {d:"Tu pousses le ballon avec la main, bras plié.",c:["Coude haut et en arrière avant la frappe, comme pour lancer une balle.","Main ouverte et ferme, contact au-dessus et devant la tête."],t:"5 frappes sur 10 qui claquent net"},
+ {d:"Tu frappes, mais sans fouetté : le ballon part à plat et flotte.",c:["Fouette le poignet par-dessus le ballon pour le faire tourner vers l’avant.","Le bras libre descend pendant que le bras de frappe monte."],t:"6 sur 10 avec rotation avant"},
+ {d:"Frappe franche avec rotation, vitesse moyenne.",c:["Arme en ouvrant l’épaule et la hanche, puis tourne le buste dans la frappe.","Relâche le bras : la vitesse vient du relâchement, pas de la crispation."],t:"3 sur 10 non défendues"},
+ {d:"Tu frappes fort et lifté, les défenseurs reculent.",c:["Accélère seulement sur la fin du geste, bras long.","Garde la même vitesse quand tu vises la ligne ou la petite diagonale."],t:"4 sur 10 non défendues"},
+ {d:"Ta frappe fait la différence même face à un bloc en place.",c:["Entretiens épaule et gainage : la vitesse se joue aussi hors du terrain.","Alterne pleine puissance et bras retenu pour dérégler le bloc."],t:"5 sur 10 non défendues"}]},
+{id:"bloc",name:"Bloc",u:"blocs",u1:"bloc",n:[5,5,9,6,5,0],v:[0,.03,.07,.12,.17],
+ kpi:"Attaques touchées ou gênées quand tu montes au bloc, sur 10",b:[
+ {d:"Tu ne montes pas au bloc, ou tu touches le filet en sautant.",c:["Près du filet, mains à hauteur des yeux avant l’attaque.","Saute droit vers le haut et redescends au même endroit."],t:"Zéro faute de filet au bloc sur le match"},
+ {d:"Tu sautes, souvent au mauvais moment ou loin du ballon.",c:["Saute juste après l’attaquant, pas en même temps que la passe.","Place-toi face à l’épaule de frappe de l’attaquant."],t:"3 sur 10 touchées"},
+ {d:"Bloc bien placé sur attaque haute, mais tes mains restent de ton côté.",c:["Passe les mains au-dessus du filet côté adverse, doigts écartés et fermes.","Main extérieure tournée vers l’intérieur du terrain."],t:"4 sur 10 touchées ou forcées à contourner"},
+ {d:"Tu fermes une direction et tu formes un bloc à deux propre.",c:["Annonce à ta défense ce que tu fermes : ligne ou diagonale.","Déplacement en pas croisés, colle ton voisin : pas de trou entre vous."],t:"5 sur 10, 1 bloc gagnant par set"},
+ {d:"Tu lis le passeur, tu arrives à temps partout et tu marques au bloc.",c:["Repère les habitudes du passeur adverse selon la qualité de sa réception.","Bloc agressif sur l’attaquant fort, bloc haut qui ralentit sur les autres."],t:"2 blocs gagnants par set"}]},
+{id:"lecture",name:"Lecture et placement",u:"situations",u1:"situation",n:[8,8,6,7,8,10],v:[0,.04,.08,.11,.13],
+ kpi:"Ballons tombés dans ta zone sans que tu aies bougé, par set",b:[
+ {d:"Tu regardes le ballon et tu restes où tu es entre deux touches.",c:["Après chaque touche de ton équipe, reviens à ta place de base.","Jamais les talons au sol quand le ballon est chez l’adversaire."],t:"Moins de 4 par set"},
+ {d:"Tu connais ta place de départ mais tu réagis en retard.",c:["Ballon facile adverse : recule tout de suite, il tombe plus souvent long.","Regarde qui va toucher le ballon en face, pas le ballon lui-même."],t:"Moins de 3 par set"},
+ {d:"Tu te replaces entre attaque et défense, tu suis les situations simples.",c:["Couvre ton attaquant : rapproche-toi, bas, à chaque attaque de ton équipe.","Passeur adverse au filet sur ballon collé : attends-toi à la deuxième main."],t:"Moins de 2 par set, 1 ballon de couverture remonté"},
+ {d:"Tu anticipes la passe et l’attaque adverses, tu couvres tes attaquants.",c:["Repère en quelques points le coup préféré de chaque attaquant.","Réception adverse ratée : anticipe le ballon facile et prépare ton attaque."],t:"1 par set au plus"},
+ {d:"Tu as un temps d’avance et tu replaces les autres.",c:["Annonce le jeu adverse avant qu’il arrive : « feinte », « ligne ».","Adapte le système défensif en cours de set."],t:"Zéro"}]},
+{id:"comm",name:"Communication",u:"ballons partagés",u1:"ballon partagé",n:[6,6,4,5,7,8],v:[0,.07,.12,.15,.17],
+ kpi:"Ballons tombés entre deux joueurs ou touchés à deux dans ta zone, par set",b:[
+ {d:"Tu joues en silence, des ballons tombent entre toi et ton voisin.",c:["« J’ai » fort et tôt sur chaque ballon que tu prends.","« À toi » ou le prénom quand tu laisses."],t:"Moins de 3 par set"},
+ {d:"Tu annonces parfois, plutôt tard.",c:["Annonce avant que le ballon passe le filet.","« Dehors » dès que tu vois le ballon sortir."],t:"Moins de 2 par set"},
+ {d:"Tu annonces tes ballons, moins ceux des autres.",c:["Avant chaque service adverse, dis qui prend le ballon entre vous deux.","Appelle ta passe quand tu es disponible en attaque."],t:"1 par set au plus"},
+ {d:"Tu parles avant, pendant et après le point.",c:["Donne une info utile à l’attaquant : « un bloc », « ligne ouverte ».","Après un point perdu, une consigne courte plutôt qu’un commentaire."],t:"Zéro, et une info donnée à chaque attaque"},
+ {d:"Tu organises l’équipe et ton calme rassure.",c:["Répartis la parole : fais annoncer les plus silencieux.","Garde le même volume à 5-15 qu’à 15-5."],t:"Zéro"}]},
+{id:"fautes",name:"Fautes évitables",u:"set",u1:"set",n:[1,1,1,1,1,1],v:[-2,-1.2,-.6,-.3,-.15],
+ kpi:"Fautes directes hors service et attaque (filet, ballon tenu, position), par set",b:[
+ {d:"Plusieurs points donnés par set : filet, ballon tenu, mauvaise position.",c:["Recule d’un pas du filet quand tu n’es ni au bloc ni à l’attaque.","Ballon douteux en touche haute : joue-le en manchette."],t:"2 par set au plus"},
+ {d:"Une ou deux fautes par set, surtout près du filet.",c:["Ballon collé au filet : joue-le vers le haut, sans chercher le point.","Vérifie ta position par rapport à tes voisins avant chaque service."],t:"1 par set au plus"},
+ {d:"Faute occasionnelle, sous pression ou sur ballon difficile.",c:["Atterris sur deux pieds après l’attaque, élan freiné avant la ligne centrale.","Ballon difficile : remets-le haut et au fond plutôt que de tenter le point."],t:"1 tous les deux sets"},
+ {d:"Très peu de fautes, tu sais quand ne pas jouer un ballon.",c:["Laisse sortir les ballons longs : au fond du terrain, un ballon à hauteur de poitrine sort.","Troisième touche en difficulté : vise le fond de la zone 1 ou 5."],t:"1 par match au plus"},
+ {d:"Tu ne donnes pas de point, même en fin de set.",c:["Rappelle rotations et positions aux autres avant le service.","Garde la même marge au filet quand tu es fatigué."],t:"Zéro"}]},
+{id:"mental",name:"Gestion de l’erreur",u:"moments sous pression",u1:"moment sous pression",n:[5,5,5,5,5,5],v:[0,.05,.09,.12,.14],
+ kpi:"Erreurs enchaînées juste après une première erreur, par set",b:[
+ {d:"Une erreur en entraîne deux ou trois, tu sors du match.",c:["Un geste fixe après chaque erreur (taper dans les mains, replacer tes genouillères), puis regard sur le serveur.","Un seul objectif au point suivant : un ballon haut au milieu."],t:"2 par set au plus"},
+ {d:"Tu rumines le point précédent et tu joues plus petit ensuite.",c:["Dis à voix haute ce que tu fais au point suivant, pas ce que tu as raté.","Redemande le ballon tout de suite après une attaque ratée."],t:"1 par set au plus"},
+ {d:"Tu repars en général, sauf dans les fins de set serrées.",c:["Même routine de service et de réception à 23-23 qu’à 3-3.","En fin de set, choisis ton coup le plus fiable, pas le plus beau."],t:"1 tous les deux sets"},
+ {d:"Tu restes constant et tu prends tes responsabilités sur les points chauds.",c:["Après l’erreur d’un coéquipier, va le voir avant le point suivant.","Repère tes séries noires (une rotation, un serveur) et prépare une réponse simple."],t:"Aucune série de deux erreurs"},
+ {d:"Tu élèves ton niveau quand le score se tend et tu stabilises les autres.",c:["Prends le ballon difficile en fin de set et annonce-le.","Coupe les séries adverses : demande le temps mort ou change le rythme."],t:"Aucune"}]}
+];
+
+const KEY="volley-autoeval-v1";
+let state={pos:"poly",sort:"roi",shown:false,v2:true,lv:{}};
+AXES.forEach(a=>state.lv[a.id]=5);
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.lv){state={...state,...s,lv:{...state.lv,...s.lv}};if(!s.v2)state.sort="roi";state.v2=true;}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}};
+
+const $=id=>document.getElementById(id);
+const fmt=(x,d=1)=>x.toLocaleString("fr-FR",{maximumFractionDigits:d});
+const posIdx=()=>POS.findIndex(p=>p[0]===state.pos);
+const band=l=>l<=2?0:l<=4?1:l<=6?2:l<=8?3:4;
+const val=(a,l)=>{const x=l/2.5,i=Math.min(3,Math.floor(x));return a.v[i]+(a.v[i+1]-a.v[i])*(x-i);};
+const nOf=a=>a.n[posIdx()];
+const active=()=>AXES.filter(a=>nOf(a)>0);
+const gainNext=a=>{const l=state.lv[a.id];return nOf(a)*(val(a,Math.min(10,l+1))-val(a,l))*100;};
+const gainTotal=a=>nOf(a)*(a.v[4]-val(a,state.lv[a.id]))*100;
+// Effort relatif pour gagner un niveau : 1 = un niveau de service en loisir. Augmente avec le niveau.
+const EFFORT={service:1,reception:1.3,defense:1.4,passe:1.5,elan:1.2,placee:.9,bras:2,bloc:1.4,lecture:1.1,comm:.5,fautes:.6,mental:1};
+const effort=a=>EFFORT[a.id]*(1+2*Math.pow(state.lv[a.id]/10,2));
+const effLvl=a=>{const e=effort(a);return e<.9?1:e<1.6?2:e<2.6?3:4;};
+const effLabel=a=>["faible","moyenne","élevée","très élevée"][effLvl(a)-1];
+const roi=a=>gainNext(a)/effort(a);
+
+function renderPos(){
+  $("pos").innerHTML=POS.map(([id,n])=>`<button class="chip" data-pos="${id}" aria-pressed="${id===state.pos}">${n}</button>`).join("");
+}
+function renderAxes(){
+  $("axes").innerHTML=active().map(a=>{const l=state.lv[a.id];return `<div class="axis">
+    <div class="axis-head"><label for="s-${a.id}">${a.name}</label><output id="o-${a.id}">${l}</output></div>
+    <input type="range" id="s-${a.id}" data-axis="${a.id}" min="0" max="10" step="1" value="${l}" style="--p:${l*10}%">
+    <p class="band" id="b-${a.id}"></p></div>`;}).join("");
+  active().forEach(updateBand);
+}
+function updateBand(a){
+  const l=state.lv[a.id],b=band(l);
+  $("o-"+a.id).textContent=l;
+  $("s-"+a.id).style.setProperty("--p",l*10+"%");
+  $("b-"+a.id).innerHTML=`<b>${BANDS[b]}.</b> ${a.b[b].d}`;
+}
+function calcLine(a){
+  const l=state.lv[a.id],n=nOf(a);
+  const nx=state.sort!=="total";const dv=nx?val(a,Math.min(10,l+1))-val(a,l):a.v[4]-val(a,l);
+  const cible=nx?"en passant au niveau "+Math.min(10,l+1):"entre ton niveau et le niveau 10";
+  if(a.id==="fautes")return `Environ ${fmt(dv,2)} faute donnée en moins par set ${cible}.`;
+  return `Environ ${fmt(n)} ${n>=2?a.u:a.u1} par set × ${fmt(dv*100)} cpt gagnés par ${a.u1} ${cible}.`;
+}
+function renderBilan(){
+  if(!state.shown){$("bilan").hidden=true;return;}
+  $("bilan").hidden=false;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===state.sort));
+  const g=state.sort==="total"?gainTotal:gainNext;
+  const sc=state.sort==="roi"?roi:g;
+  const list=active().map(a=>({a,g:g(a),s:sc(a)})).sort((x,y)=>y.s-x.s);
+  $("sortnote").textContent={roi:"Classé du meilleur rendement au moins bon : le plus de points à gagner pour le moins de difficulté.",next:"Classé selon les points gagnés au prochain niveau, sans tenir compte de la difficulté.",total:"Classé selon les points qui te séparent du niveau 10."}[state.sort];
+  const top=list.slice(0,3),sum=top.reduce((s,x)=>s+x.g,0);
+  let phrase;
+  if(sum<1)phrase="Tu es au plafond du modèle sur tes axes principaux.";
+  else if(sum>=100)phrase=`soit environ ${fmt(sum/100)} point par set`;
+  else phrase=`soit environ 1 point de plus tous les ${fmt(100/sum,0)} sets`;
+  $("total").innerHTML=state.sort!=="total"
+    ?`<strong>+${fmt(sum,0)} cpt par set</strong>en gagnant un niveau sur tes trois premières priorités, ${phrase}.`
+    :`<strong>+${fmt(sum,0)} cpt par set</strong>de réserve sur tes trois plus gros potentiels, ${phrase}.`;
+  $("results").innerHTML=list.map((x,i)=>{
+    const a=x.a,l=state.lv[a.id],b=a.b[band(l)],z=x.g<.5;
+    return `<details class="res"${i<3?" open":""}>
+      <summary><span class="rank">${i+1}</span><span class="rname">${a.name}</span>
+      <span class="gain${z?" zero":""}">${z?"au max":"+"+fmt(x.g,0)+" cpt"}</span>
+      <span class="diff">Difficulté <span class="dots" aria-hidden="true">${[1,2,3,4].map(k=>`<i${k<=effLvl(a)?' class="on"':""}></i>`).join("")}</span> ${effLabel(a)}</span></summary>
+      <div class="res-body">
+        <p class="muted small">Niveau ${l} sur 10 (${BANDS[band(l)].toLowerCase()}). ${z?"":calcLine(a)+" Difficulté pour gagner un niveau : ×"+fmt(effort(a))+"."}</p>
+        <h3>À surveiller dans tes prochains matchs</h3>
+        <ul>${b.c.map(c=>`<li>${c}</li>`).join("")}</ul>
+        <div class="kpi"><b>À compter :</b> ${a.kpi.charAt(0).toLowerCase()+a.kpi.slice(1)}.<br><b>Objectif :</b> ${b.t}.</div>
+      </div></details>`;}).join("");
+}
+function renderModel(){
+  $("mtable").innerHTML=`<tr><th>Axe</th><th>Actions par set</th><th>Niv. 0</th><th>2,5</th><th>5</th><th>7,5</th><th>10</th><th>Effort</th></tr>`+
+    active().map(a=>`<tr><td>${a.name}</td><td>${fmt(nOf(a))}</td>${a.v.map(v=>`<td>${fmt(v,2)}</td>`).join("")}<td>×${fmt(effort(a))}</td></tr>`).join("");
+}
+function renderAll(){renderPos();renderAxes();renderBilan();renderModel();}
+
+$("pos").addEventListener("click",e=>{const b=e.target.closest("[data-pos]");if(!b)return;state.pos=b.dataset.pos;save();renderAll();});
+$("axes").addEventListener("input",e=>{const id=e.target.dataset.axis;if(!id)return;state.lv[id]=+e.target.value;save();updateBand(AXES.find(a=>a.id===id));renderBilan();renderModel();});
+$("go").addEventListener("click",()=>{state.shown=true;save();renderBilan();$("bilan").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});});
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("[data-sort]");if(!b)return;state.sort=b.dataset.sort;save();renderBilan();});
+$("reset").addEventListener("click",()=>{AXES.forEach(a=>state.lv[a.id]=5);save();renderAll();});
+renderAll();
+</script>
+</body>
+</html>
